@@ -16,8 +16,8 @@ app.use(express.json());
 
 router.get('/', ensureLoggedIn, async function (req, res, next) {
   try {
-    let resp = await User.all();
-    return res.json({ users: resp })
+    let users = await User.all();
+    return res.json({ users })
   } catch (err) {
     next(err);
   }
@@ -31,8 +31,8 @@ router.get('/', ensureLoggedIn, async function (req, res, next) {
  **/
 router.get('/:username', ensureCorrectUser, async function (req, res, next) {
   try {
-    let resp = await User.get(req.params.username);
-    return res.json({ user: resp });
+    let user = await User.get(req.params.username);
+    return res.json({ user });
   } catch (err) {
     next(err);
   }
@@ -49,8 +49,8 @@ router.get('/:username', ensureCorrectUser, async function (req, res, next) {
  **/
 router.get("/:username/to", ensureCorrectUser, async function (req, res, next) {
   try {
-    let resp = await User.messagesTo(req.params.username);
-    return res.json({ messages: resp })
+    let messages = await User.messagesTo(req.params.username);
+    return res.json({ messages })
   } catch (err) {
     next(err);
   }
@@ -67,8 +67,8 @@ router.get("/:username/to", ensureCorrectUser, async function (req, res, next) {
  **/
 router.get("/:username/from", ensureCorrectUser, async function (req, res, next) {
   try {
-    let resp = await User.messagesFrom(req.params.username);
-    return res.json({ messages: resp })
+    let messages = await User.messagesFrom(req.params.username);
+    return res.json({ messages })
   } catch (err) {
     next(err);
   }

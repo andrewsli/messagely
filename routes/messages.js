@@ -1,9 +1,10 @@
+const User = require("../models/user")
 const Message = require("../models/message");
 const express = require("express");
 const app = express();
 const ExpressError = require("../expressError");
 const router = express.Router();
-const { authenticateJWT, ensureLoggedIn } = require("../middleware/auth");
+const { ensureLoggedIn } = require("../middleware/auth");
 
 app.use(express.json());
 
@@ -43,14 +44,18 @@ router.get("/:id", async function (req, res, next) {
  **/
 router.post('/', ensureLoggedIn, async function (req, res, next) {
   try {
-    const { to_username, body, _token } = req.body;
+    const { to_username, body} = req.body;
     const message = {
       from_username: req.user.username,
       to_username,
       body
     };
-    let resp = await Message.create(message);
-    return res.json({ message: resp });
+
+    let { phone } = await User.get(to_username);
+    let message = await Message.create(message);
+
+    Message.sendSMS(phone, body);
+    return res.json({ message });
   } catch (err) {
     next(err);
   }
@@ -70,8 +75,8 @@ router.post('/:id/read', ensureLoggedIn, async function (req, res, next) {
     let recipient = msg.to_user.username;
 
     if (req.user.username === recipient) {
-      let resp = await Message.markRead(req.params.id);
-      return res.json({ message: resp });
+      let message = await Message.markRead(req.params.id);
+      return res.json({ message });
     } else {
       throw new ExpressError("You can't mark this message as read.", 401);
     }

@@ -55,13 +55,13 @@ class User {
 
   static async updateLoginTimestamp(username) {
     try {
-      let resp = await db.query(`
+      let result = await db.query(`
       UPDATE users
       SET last_login_at = CURRENT_TIMESTAMP
       WHERE username = $1
       RETURNING username, last_login_at`,
         [username]);
-      if (resp.rows[0]) {
+      if (result.rows[0]) {
         return null;
       } else {
         throw new ExpressError("USER NOT FOUND", 401);
@@ -69,6 +69,20 @@ class User {
     } catch (err) {
       throw new ExpressError("Something went wrong, try again.", 500)
     }
+  }
+
+
+  /** change password in db, return { username } */
+
+  static async changePassword(username, newPassword){
+    const hashedPassword = await bcrypt.hash(newPassword, BCRYPT_WORK_FACTOR)
+        let result = await db.query(`
+          UPDATE users
+          SET password = $1
+          WHERE username = $2
+          RETURNING username`,
+          [hashedPassword, username])
+        return result.rows[0];
   }
 
   /** All: basic info on all users:
@@ -126,7 +140,7 @@ class User {
    */
 
   static async messagesFrom(username) {
-    let resp = [];
+    let messages = [];
     try {
       let messageResults = await db.query(`
       SELECT id, body, sent_at, read_at, username, first_name, last_name, phone
@@ -135,7 +149,7 @@ class User {
       WHERE from_username = $1`,
         [username]);
       for (let msg of messageResults.rows) {
-        resp.push({
+        messages.push({
           id: msg.id,
           body: msg.body,
           sent_at: new Date(msg.sent_at),
@@ -148,7 +162,7 @@ class User {
           }
         });
       }
-      return resp;
+      return messages;
     } catch (err) {
       throw new ExpressError("Something went wrong, try again.", 500);
     }
@@ -163,7 +177,7 @@ class User {
    */
 
   static async messagesTo(username) {
-    let resp = [];
+    let messages = [];
     try {
       let messageResults = await db.query(`
       SELECT id, body, sent_at, read_at, username, first_name, last_name, phone
@@ -173,7 +187,7 @@ class User {
         [username]);
 
       for (let msg of messageResults.rows) {
-        resp.push({
+        messages.push({
           id: msg.id,
           body: msg.body,
           sent_at: new Date(msg.sent_at),
@@ -186,7 +200,7 @@ class User {
           }
         });
       }
-      return resp;
+      return messages;
     } catch (err) {
       throw new ExpressError("Something went wrong, try again.", 500);
     }
