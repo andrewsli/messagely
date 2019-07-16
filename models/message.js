@@ -39,7 +39,6 @@ class Message {
     if (!result.rows[0]) {
       throw new ExpressError(`No such message: ${id}`, 404);
     }
-
     return result.rows[0];
   }
 

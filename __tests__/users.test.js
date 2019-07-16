@@ -3,7 +3,7 @@ const User = require("../models/user");
 const Message = require("../models/message");
 
 
-describe("Test User class", async function () {
+describe("Test User class", function () {
   beforeEach(async function () {
     await db.query("DELETE FROM messages");
     await db.query("DELETE FROM users");
@@ -50,6 +50,7 @@ describe("Test User class", async function () {
 
   test("can get", async function () {
     let u = await User.get("test");
+
     expect(u).toEqual({
       username: "test",
       first_name: "Test",
@@ -66,11 +67,12 @@ describe("Test User class", async function () {
       username: "test",
       first_name: "Test",
       last_name: "Testy",
+      phone: "+14155550000"
     }]);
   });
 });
 
-describe("Test messages part of User class", async function () {
+describe("Test messages part of User class", function () {
   beforeEach(async function () {
     await db.query("DELETE FROM messages");
     await db.query("DELETE FROM users");
