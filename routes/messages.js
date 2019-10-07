@@ -52,10 +52,10 @@ router.post('/', ensureLoggedIn, async function (req, res, next) {
     };
 
     let { phone } = await User.get(to_username);
-    let message = await Message.create(message);
+    let newMessage = await Message.create(message);
 
     Message.sendSMS(phone, body);
-    return res.json({ message });
+    return res.json({ newMessage });
   } catch (err) {
     next(err);
   }
